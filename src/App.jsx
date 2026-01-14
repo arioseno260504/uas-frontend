@@ -1,35 +1,102 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route, NavLink, Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+
+// pages
+import Home from "./pages/Home";
+import Todo from "./pages/Todo";
+import Users from "./pages/Users";
 
 function App() {
-  const [count, setCount] = useState(0)
+  // theme (localStorage)
+  const [theme, setTheme] = useState(
+    localStorage.getItem("theme") || "light"
+  );
+
+  // login dummy (simulasi auth)
+  const [isLogin, setIsLogin] = useState(
+    localStorage.getItem("login") === "true"
+  );
+
+  /* ======================
+     side effects
+  ====================== */
+  useEffect(() => {
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  useEffect(() => {
+    localStorage.setItem("login", isLogin);
+  }, [isLogin]);
+
+  /* ======================
+     handlers
+  ====================== */
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light");
+  };
+
+  const handleLogin = () => setIsLogin(true);
+  const handleLogout = () => setIsLogin(false);
+
+  /* ======================
+     protected route
+  ====================== */
+  const ProtectedRoute = ({ children }) => {
+    if (!isLogin) return <Navigate to="/" />;
+    return children;
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <BrowserRouter>
+      <div className={`app ${theme}`}>
+
+        {/* ===== NAVBAR ===== */}
+        <header className="navbar">
+          <h2>Frontend UAS</h2>
+
+          <nav className="nav-menu">
+            <NavLink to="/" end>Home</NavLink>
+            <NavLink to="/todo">Todo</NavLink>
+            <NavLink to="/users">Users</NavLink>
+          </nav>
+
+          <div className="nav-action">
+            <button onClick={toggleTheme}>
+              {theme === "light" ? "🌙" : "☀️"}
+            </button>
+
+            {isLogin ? (
+              <button onClick={handleLogout}>Logout</button>
+            ) : (
+              <button onClick={handleLogin}>Login</button>
+            )}
+          </div>
+        </header>
+
+        {/* ===== CONTENT ===== */}
+        <main className="content">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/todo" element={<Todo />} />
+            <Route
+              path="/users"
+              element={
+                <ProtectedRoute>
+                  <Users />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </main>
+
+        {/* ===== FOOTER ===== */}
+        <footer className="footer">
+          <p>© 2026 Frontend UAS</p>
+        </footer>
+
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
