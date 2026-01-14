@@ -2,9 +2,9 @@ import { BrowserRouter, Routes, Route, NavLink, Navigate } from "react-router-do
 import { useEffect, useState } from "react";
 
 // pages
-import Home from "./pages/Home";
-import Todo from "./pages/Todo";
-import Users from "./pages/Users";
+import Home from "./pages/home";
+import Todo from "./pages/todo";
+import Users from "./pages/users";
 
 function App() {
   // theme (localStorage)
