@@ -1,101 +1,51 @@
-import { BrowserRouter, Routes, Route, NavLink, Navigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-
-// pages
-import home from "./pages/home";
-import todo from "./pages/todo";
-import users from "./pages/users";
+import { useState } from "react";
 
 function App() {
-  // theme (localStorage)
-  const [theme, setTheme] = useState(
-    localStorage.getItem("theme") || "light"
-  );
+  const [items, setItems] = useState([]);
+  const [text, setText] = useState("");
 
-  // login dummy (simulasi auth)
-  const [isLogin, setIsLogin] = useState(
-    localStorage.getItem("login") === "true"
-  );
+  // CREATE
+  const addItem = () => {
+    if (!text.trim()) return;
 
-  /* ======================
-     side effects
-  ====================== */
-  useEffect(() => {
-    localStorage.setItem("theme", theme);
-  }, [theme]);
-
-  useEffect(() => {
-    localStorage.setItem("login", isLogin);
-  }, [isLogin]);
-
-  /* ======================
-     handlers
-  ====================== */
-  const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
+    setItems([...items, { id: Date.now(), name: text }]);
+    setText("");
   };
 
-  const handleLogin = () => setIsLogin(true);
-  const handleLogout = () => setIsLogin(false);
-
-  /* ======================
-     protected route
-  ====================== */
-  const ProtectedRoute = ({ children }) => {
-    if (!isLogin) return <Navigate to="/" />;
-    return children;
+  // DELETE
+  const deleteItem = (id) => {
+    setItems(items.filter((item) => item.id !== id));
   };
 
   return (
-    <BrowserRouter>
-      <div className={`app ${theme}`}>
+    <div style={{ padding: "20px", fontFamily: "Arial" }}>
+      <h1>Frontend UAS</h1>
+      <p>Contoh CRUD sederhana (tanpa router)</p>
 
-        {/* ===== NAVBAR ===== */}
-        <header className="navbar">
-          <h2>Frontend UAS</h2>
+      <input
+        type="text"
+        placeholder="Tambah data..."
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <button onClick={addItem} style={{ marginLeft: "5px" }}>
+        Tambah
+      </button>
 
-          <nav className="nav-menu">
-            <NavLink to="/" end>Home</NavLink>
-            <NavLink to="/todo">Todo</NavLink>
-            <NavLink to="/users">Users</NavLink>
-          </nav>
-
-          <div className="nav-action">
-            <button onClick={toggleTheme}>
-              {theme === "light" ? "🌙" : "☀️"}
+      <ul>
+        {items.map((item) => (
+          <li key={item.id}>
+            {item.name}
+            <button
+              onClick={() => deleteItem(item.id)}
+              style={{ marginLeft: "10px" }}
+            >
+              Hapus
             </button>
-
-            {isLogin ? (
-              <button onClick={handleLogout}>Logout</button>
-            ) : (
-              <button onClick={handleLogin}>Login</button>
-            )}
-          </div>
-        </header>
-
-        {/* ===== CONTENT ===== */}
-        <main className="content">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/todo" element={<Todo />} />
-            <Route
-              path="/users"
-              element={
-                <ProtectedRoute>
-                  <Users />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </main>
-
-        {/* ===== FOOTER ===== */}
-        <footer className="footer">
-          <p>© 2026 Frontend UAS</p>
-        </footer>
-
-      </div>
-    </BrowserRouter>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
